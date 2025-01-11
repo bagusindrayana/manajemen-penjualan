@@ -12,7 +12,7 @@ class SalesChart extends ChartWidget
     protected static ?string $heading = 'Grafik Penjualan';
 
     protected function getData(): array
-    {
+    {   
         $data = Trend::model(Sale::class)
             ->between(
                 start: now()->subDays(30),

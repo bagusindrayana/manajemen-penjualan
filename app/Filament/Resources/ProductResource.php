@@ -7,12 +7,14 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductResource extends Resource
 {
@@ -79,6 +81,29 @@ class ProductResource extends Resource
             ])->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()->action(function ($record) {
+                    try {
+                        // Attempt to delete the record
+                        DB::transaction(function () use ($record) {
+                            $record->delete();
+                        });
+
+                        // Show success notification
+                        Notification::make()
+                                    ->title('Record deleted successfully')
+                                    ->success()
+                                    ->send();
+                    } catch (\Exception $e) {
+                        // Log the error or handle it as needed
+                        logger()->error($e->getMessage());
+
+                        Notification::make()
+                                    ->title('Failed to delete the record. Please try again')
+                                    ->danger()
+                                    ->send();
+
+                    }
+                }),
             ]);
     }
 

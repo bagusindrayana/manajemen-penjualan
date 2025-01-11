@@ -12,7 +12,7 @@ class SaleOverview extends ChartWidget
     protected static ?int $sort = 3;
 
     protected function getData(): array
-    {
+    {   
         $data = Sale::query()
             ->select(DB::raw('DATE(date) as sale_date'), DB::raw('SUM(total_amount) as total_sales'))
             ->whereDate('date', '>=', now()->subDays(7))
