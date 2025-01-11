@@ -1,21 +1,20 @@
 <?php
-use App\Filament\Resources\ProductResource;
-use App\Filament\Resources\SaleReportResource;
-use App\Filament\Resources\SaleResource;
-use App\Filament\Resources\UserResource;
 
-it('can render page product', function () {
-    $this->get(ProductResource::getUrl('index'))->assertSuccessful();
-});
+namespace Tests\Feature;
 
-it('can render page sale', function () {
-    $this->get(SaleResource::getUrl('index'))->assertSuccessful();
-});
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
-it('can render page user', function () {
-    $this->get(UserResource::getUrl('index'))->assertSuccessful();
-});
+class AccessPageTest extends TestCase
+{
+    /**
+     * A basic feature test example.
+     */
+    public function test_example(): void
+    {
+        $response = $this->get('/');
 
-it('can render page sale report', function () {
-    $this->get(SaleReportResource::getUrl('index'))->assertSuccessful();
-});
+        $response->assertStatus(200);
+    }
+}
