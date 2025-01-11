@@ -15,4 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->withCommands([
+        \BladeUI\Icons\Console\CacheCommand::class,
+        \BladeUI\Icons\Console\ClearCommand::class,
+    ])
+    ->create();
