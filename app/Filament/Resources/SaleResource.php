@@ -6,6 +6,7 @@ use App\Filament\Resources\SaleResource\Pages;
 use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Product;
 use App\Models\Sale;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Illuminate\Support\Str;
+use Filament\Notifications\Notification;
 
 class SaleResource extends Resource
 {
@@ -70,9 +72,18 @@ class SaleResource extends Resource
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
                                             $product = Product::find($state);
-                                            $set('price', $product->selling_price);
-                                            $set('subtotal', $product->selling_price);
-                                            $set('total_amount', $product->selling_price);
+                                            $set('max_qty',$product->stock);
+                                            if($product->stock <= 0){
+                                                Notification::make()
+                                                ->title('Stok produk tidak cukup')
+                                                ->warning()
+                                                ->send();
+                                            } else {
+                                                $set('price', $product->selling_price);
+                                                $set('subtotal', $product->selling_price);
+                                                $set('total_amount', $product->selling_price);
+                                            }
+                                            
                                         }
                                     })
                                     ->getSearchResultsUsing(function (string $search): array {
@@ -81,7 +92,7 @@ class SaleResource extends Resource
                                                 $searchString = "%$search%";
                                                 $builder->where('name', 'like', $searchString);
                                             })
-
+                                            ->where('stock','>',0)
                                             ->limit(50)
                                             ->get()
                                             ->mapWithKeys(function (Product $product) {
@@ -100,7 +111,10 @@ class SaleResource extends Resource
                                             $total = collect($get('items'))->values()->pluck('subtotal')->sum();
                                             $set('total_amount', $total);
                                         }
+                                    })->maxValue(function (callable $get): int {
+                                        return (int) $get('max_qty');
                                     }),
+                                    
                                 Forms\Components\TextInput::make('price')
                                     ->label('Harga')
                                     ->readOnly()
@@ -118,10 +132,11 @@ class SaleResource extends Resource
                             ->columns(4)
                             ->addACtionLabel('Tambah Produk')
                             ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                                $product = Product::find($data['product_id']);
+                                $product = Product::findOrFail($data['product_id']);
                                 $product->update([
                                     'stock' => $product->stock - $data['quantity']
                                 ]);
+                                
                                 return $data;
                             })
                             ->addAction(function (callable $get, callable $set) {
