@@ -7,6 +7,7 @@ use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Product;
 use App\Models\Sale;
 use Exception;
+use Filament\Tables\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -186,6 +187,11 @@ class SaleResource extends Resource
                 DateRangeFilter::make('date'),
             ])
             ->actions([
+                Action::make('print')
+                ->url(fn ($record) => route('print-invoice', $record->id))
+                ->openUrlInNewTab()
+                ->icon('heroicon-o-printer')
+                ->color('info'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ]);

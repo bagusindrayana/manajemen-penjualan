@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Sale;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,11 @@ Route::get('/db-seed', function () {
     return Artisan::call('db:seed');
 });
 
+
+Route::get('/invoice/{id}', function ($id) {
+    $sale = Sale::with('items.product')->find($id);
+    return view('invoice',compact('sale'));
+})->name('print-invoice');
 
 
 Route::get('/', function () {
