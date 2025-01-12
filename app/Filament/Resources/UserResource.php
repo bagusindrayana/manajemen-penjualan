@@ -43,8 +43,7 @@ class UserResource extends Resource
                         'admin' => 'Admin',
                         'karyawan' => 'Karyawan',
                     ])
-                    ->default('karyawan')
-                    ->dehydrateStateUsing(fn($state) => bcrypt($state)),
+                    ->default('karyawan'),
             ]);
     }
 
