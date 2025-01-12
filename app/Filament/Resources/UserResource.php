@@ -37,7 +37,9 @@ class UserResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->required(fn($livewire) => $livewire instanceof Pages\CreateUser)
-                    ->minLength(8) ,
+                    ->minLength(8)
+                    ->dehydrateStateUsing(fn($state) => bcrypt($state))
+                    ->dehydrated(fn ($state) => filled($state)),
                 Select::make('role')
                     ->options([
                         'admin' => 'Admin',
