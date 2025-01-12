@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -78,7 +79,7 @@ class ProductResource extends Resource
                         'food' => 'Makanan',
                         'others' => 'Lainnya',
                     ]),
-            ])->actions([
+            ])->actions(Auth::user() != null && Auth::user()->role=="admin" ? [
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()->action(function ($record) {
@@ -104,7 +105,7 @@ class ProductResource extends Resource
 
                     }
                 }),
-            ]);
+            ] : [Tables\Actions\ViewAction::make()]);
     }
 
     public static function getRelations(): array
@@ -114,17 +115,32 @@ class ProductResource extends Resource
         ];
     }
 
-    public static function canViewAny(): bool
+    public static function canCreate(): bool
     {
         return Auth::user()->role=="admin";
     }
 
-    public static function getPages(): array
+
+    public static function canEdit(Model $record): bool
     {
+        return Auth::user()->role=="admin";
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->role=="admin";
+    }
+
+    
+
+    public static function getPages(): array
+    {   
+        
         return [
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+        
     }
 }
